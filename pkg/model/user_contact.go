@@ -21,7 +21,7 @@ const (
 )
 
 const (
-	ApplyInit = iota
+	ApplyInit = iota + 1
 	ApplyPassed
 	ApplyRejected
 )
