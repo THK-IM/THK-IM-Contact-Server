@@ -18,7 +18,7 @@ func followUser(appCtx *app.Context) gin.HandlerFunc {
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
-		errReq := followLogic.Follow(&req)
+		errReq := followLogic.AddFollowContact(&req)
 		if errReq != nil {
 			appCtx.Logger().Error(errReq.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
@@ -38,10 +38,10 @@ func unFollowUser(appCtx *app.Context) gin.HandlerFunc {
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
-		errReq := followLogic.UnFollow(&req)
-		if errReq != nil {
-			appCtx.Logger().Error(errReq.Error())
-			baseDto.ResponseInternalServerError(ctx, errReq)
+		err = followLogic.RemoveFollowContact(&req)
+		if err != nil {
+			appCtx.Logger().Error(err.Error())
+			baseDto.ResponseInternalServerError(ctx, err)
 		} else {
 			baseDto.ResponseSuccess(ctx, nil)
 		}

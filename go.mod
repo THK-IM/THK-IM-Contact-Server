@@ -3,9 +3,9 @@ module github.com/thk-im/thk-im-contact-server
 go 1.19
 
 require (
-	github.com/bwmarrin/snowflake v0.3.0
+	github.com/gin-gonic/gin v1.9.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/thk-im/thk-im-base-server v0.0.0-20231210115213-f9fa53007dd5
+	github.com/thk-im/thk-im-base-server v0.0.0-20231215133046-540f2fc36b56
 	gorm.io/gorm v1.25.5
 )
 
@@ -20,7 +20,6 @@ require (
 	github.com/fatih/color v1.14.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.9.1 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.14.0 // indirect

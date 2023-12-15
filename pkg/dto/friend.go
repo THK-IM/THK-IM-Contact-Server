@@ -1,11 +1,12 @@
 package dto
 
 type AddFriendReq struct {
-	UserId int64 `json:"user_id" binding:"required"` // 对方id
+	UserId    int64 `json:"user_id" binding:"required"`
+	ContactId int64 `json:"contact_id" binding:"required"` // 对方id
 }
 
 type AddFriendResp struct {
-	UserId       int64  `json:"user_id"`       // 对方id
+	ToUserId     int64  `json:"to_user_id"`    // 对方id
 	ApplyId      *int64 `json:"apply_id"`      // 好友申请 申请id
 	FriendStatus int8   `json:"friend_status"` // 好友状态 1 好友 0 非好友
 	BlackStatus  int8   `json:"black_status"`  // 黑名单状态 1 你是对方的黑名单，2 对方在你的黑名单中 0 非黑名单

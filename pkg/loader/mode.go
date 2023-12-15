@@ -2,9 +2,9 @@ package loader
 
 import (
 	"fmt"
-	"github.com/bwmarrin/snowflake"
 	"github.com/sirupsen/logrus"
 	"github.com/thk-im/thk-im-base-server/conf"
+	"github.com/thk-im/thk-im-base-server/snowflake"
 	"github.com/thk-im/thk-im-contact-server/pkg/model"
 	"gorm.io/gorm"
 	"os"
@@ -14,7 +14,7 @@ func LoadModels(modeConfigs []conf.Model, database *gorm.DB, logger *logrus.Entr
 	modelMap := make(map[string]interface{}, 0)
 	for _, ms := range modeConfigs {
 		var m interface{}
-		if ms.Name == "user-contact" {
+		if ms.Name == "user_contact" {
 			m = model.NewUserContactModel(database, logger, snowflakeNode, ms.Shards)
 		}
 		modelMap[ms.Name] = m

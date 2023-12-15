@@ -13,7 +13,7 @@ type Context struct {
 }
 
 func (c *Context) UserContactModel() model.UserContactModel {
-	return c.modelMap["user"].(model.UserContactModel)
+	return c.modelMap["user_contact"].(model.UserContactModel)
 }
 
 func (c *Context) Init(config *conf.Config) {

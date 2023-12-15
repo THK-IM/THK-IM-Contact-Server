@@ -18,10 +18,10 @@ func addBlack(appCtx *app.Context) gin.HandlerFunc {
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
-		errReq := blackLogic.AddBlack(&req)
-		if errReq != nil {
-			appCtx.Logger().Error(errReq.Error())
-			baseDto.ResponseInternalServerError(ctx, errReq)
+		err = blackLogic.AddBlackContact(&req)
+		if err != nil {
+			appCtx.Logger().Error(err.Error())
+			baseDto.ResponseInternalServerError(ctx, err)
 		} else {
 			baseDto.ResponseSuccess(ctx, nil)
 		}
@@ -38,10 +38,10 @@ func removeBlack(appCtx *app.Context) gin.HandlerFunc {
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
-		errReq := blackLogic.RemoveBlack(&req)
-		if errReq != nil {
-			appCtx.Logger().Error(errReq.Error())
-			baseDto.ResponseInternalServerError(ctx, errReq)
+		err = blackLogic.RemoveBlackContact(&req)
+		if err != nil {
+			appCtx.Logger().Error(err.Error())
+			baseDto.ResponseInternalServerError(ctx, err)
 		} else {
 			baseDto.ResponseSuccess(ctx, nil)
 		}
