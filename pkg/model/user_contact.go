@@ -119,7 +119,7 @@ func (d defaultUserContactModel) createUserRelation(tx *gorm.DB, uId, contactId,
 func (d defaultUserContactModel) removeUserRelation(tx *gorm.DB, uId, contactId, relation int64) (err error) {
 	userTable := d.genUserContactTableName(uId)
 	contactTable := d.genUserContactTableName(contactId)
-	sql := "update %s set relation = relation & (relation ^ ?), update = ? where user_id = ? and contact_id = ? "
+	sql := "update %s set relation = relation & (relation ^ ?), update_time = ? where user_id = ? and contact_id = ? "
 	now := time.Now().UnixMilli()
 	err = tx.Exec(fmt.Sprintf(sql, userTable), relation, now, uId, contactId).Error
 	if err != nil {
@@ -129,7 +129,7 @@ func (d defaultUserContactModel) removeUserRelation(tx *gorm.DB, uId, contactId,
 	if relation == RelationFriend {
 		reverseRelation = relation
 	}
-	err = tx.Exec(fmt.Sprintf(sql, contactTable), reverseRelation, now, uId, contactId).Error
+	err = tx.Exec(fmt.Sprintf(sql, contactTable), reverseRelation, now, contactId, uId).Error
 	return err
 }
 

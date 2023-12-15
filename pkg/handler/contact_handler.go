@@ -12,6 +12,6 @@ func RegisterContactApiHandlers(appCtx *app.Context) {
 
 	contactGroup.POST("/follow", followUser(appCtx))
 	contactGroup.DELETE("/follow", unFollowUser(appCtx))
-	contactGroup.POST("/black", followUser(appCtx))
-	contactGroup.DELETE("/black", unFollowUser(appCtx))
+	contactGroup.POST("/black", addBlack(appCtx))
+	contactGroup.DELETE("/black", removeBlack(appCtx))
 }
