@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"github.com/thk-im/thk-im-base-server/errorx"
 	"github.com/thk-im/thk-im-base-server/snowflake"
 	"gorm.io/gorm"
 	"time"
@@ -39,8 +40,9 @@ type (
 
 	UserContactApply struct {
 		UserId       int64 `gorm:"user_id"`
+		ApplyId      int64 `gorm:"apply_id"`
 		ApplyUserId  int64 `gorm:"apply_user_id"` // 申请人id
-		ToUserId     int8  `gorm:"to_user_id"`    // 被申请人id
+		ToUserId     int64 `gorm:"to_user_id"`    // 被申请人id
 		RelationType int8  `gorm:"relation_type"`
 		ApplyStatus  int8  `gorm:"apply_status"`
 		CreateTime   int64 `gorm:"create_time"`
@@ -51,8 +53,9 @@ type (
 		FindOneByContactId(uId, contactId int64) (*UserContact, error)
 		CreateUserRelation(uId, contactId, relation int64) (err error)
 		RemoveUserRelation(uId, contactId, relation int64) (err error)
-		CreateContactApply(uId, contactId int64, applyType int8) error
-		ReviewContactApply(uId, contactId int64, applyType int8, status int8) error
+		FindOneByContactApplyId(uId, applyId int64) (apply *UserContactApply, err error)
+		CreateContactApply(uId, contactId int64, relationType int8) (applyId int64, err error)
+		ReviewContactApply(uId, applyId int64, passed int8) (toUserApply *UserContactApply, err error)
 	}
 
 	defaultUserContactModel struct {
@@ -64,8 +67,11 @@ type (
 )
 
 func (d defaultUserContactModel) FindOneByContactId(uId, contactId int64) (*UserContact, error) {
-	// TODO implement me
-	panic("implement me")
+	tableName := d.genUserContactTableName(uId)
+	sql := fmt.Sprintf("select * from %s where user_id = ? and contact_id = ?", tableName)
+	userContact := &UserContact{}
+	err := d.db.Raw(sql, uId, contactId).Scan(userContact).Error
+	return userContact, err
 }
 
 func (d defaultUserContactModel) CreateUserRelation(uId, contactId, relation int64) (err error) {
@@ -91,12 +97,109 @@ func (d defaultUserContactModel) RemoveUserRelation(uId, contactId, relation int
 	}()
 	return d.removeUserRelation(tx, uId, contactId, relation)
 }
-func (d defaultUserContactModel) CreateContactApply(uId, contactId int64, applyType int8) error {
-	return nil
+
+func (d defaultUserContactModel) FindOneByContactApplyId(uId, applyId int64) (apply *UserContactApply, err error) {
+	userTable := d.genUserContactApplyTableName(uId)
+	toUserApply := &UserContactApply{}
+	err = d.db.Table(userTable).Find(toUserApply).Where("user_id = ? and apply_id = ?", uId, applyId).Error
+	if err != nil {
+		return
+	}
+	apply = toUserApply
+	return
 }
 
-func (d defaultUserContactModel) ReviewContactApply(uId, contactId int64, applyType int8, status int8) error {
-	return nil
+func (d defaultUserContactModel) CreateContactApply(uId, contactId int64, relationType int8) (applyId int64, err error) {
+	userTable := d.genUserContactApplyTableName(uId)
+	toUserTable := d.genUserContactApplyTableName(contactId)
+	now := time.Now().UnixMilli()
+	applyId = d.snowflakeNode.Generate().Int64()
+	tx := d.db.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit().Error
+		}
+	}()
+
+	userContactApply := &UserContactApply{
+		UserId:       uId,
+		ApplyId:      applyId,
+		ApplyUserId:  uId,
+		ToUserId:     contactId,
+		RelationType: relationType,
+		ApplyStatus:  ApplyInit,
+		CreateTime:   now,
+		UpdateTime:   now,
+	}
+	err = tx.Table(userTable).Create(userContactApply).Error
+	if err != nil {
+		return
+	}
+
+	toUserContactApply := &UserContactApply{
+		UserId:       contactId,
+		ApplyId:      applyId,
+		ApplyUserId:  uId,
+		ToUserId:     contactId,
+		RelationType: relationType,
+		ApplyStatus:  ApplyInit,
+		CreateTime:   now,
+		UpdateTime:   now,
+	}
+	err = tx.Table(toUserTable).Create(toUserContactApply).Error
+	return
+}
+
+func (d defaultUserContactModel) ReviewContactApply(uId, applyId int64, passed int8) (toUserApply *UserContactApply, err error) {
+	userTable := d.genUserContactApplyTableName(uId)
+	now := time.Now().UnixMilli()
+
+	tx := d.db.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit().Error
+		}
+	}()
+
+	toUserApply = &UserContactApply{}
+	err = tx.Table(userTable).Where("user_id = ? and apply_id = ?", uId, applyId).Find(toUserApply).Error
+	if err != nil {
+		return
+	}
+
+	if toUserApply.UserId != toUserApply.ToUserId {
+		err = errorx.ErrPermission
+		return
+	}
+
+	if toUserApply.ApplyStatus != ApplyInit {
+		return
+	}
+
+	updateMap := make(map[string]interface{})
+	updateMap["apply_status"] = passed
+	updateMap["update_time"] = now
+
+	err = tx.Table(userTable).Where("user_id = ? and apply_id = ?", uId, applyId).Updates(updateMap).Error
+	if err != nil {
+		return
+	}
+
+	applyUserTable := d.genUserContactApplyTableName(toUserApply.ApplyUserId)
+	err = tx.Table(applyUserTable).Where("user_id = ? and apply_id = ?", toUserApply.ApplyUserId, applyId).Updates(updateMap).Error
+	if err != nil {
+		return
+	}
+
+	if passed == ApplyPassed {
+		relation := int64(1 << toUserApply.RelationType)
+		err = d.createUserRelation(tx, toUserApply.ApplyUserId, toUserApply.ToUserId, relation)
+	}
+	return
 }
 
 func (d defaultUserContactModel) createUserRelation(tx *gorm.DB, uId, contactId, relation int64) (err error) {

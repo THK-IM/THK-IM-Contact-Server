@@ -6,15 +6,23 @@ type AddFriendReq struct {
 }
 
 type AddFriendResp struct {
-	ToUserId     int64  `json:"to_user_id"`    // 对方id
-	ApplyId      *int64 `json:"apply_id"`      // 好友申请 申请id
-	FriendStatus int8   `json:"friend_status"` // 好友状态 1 好友 0 非好友
-	BlackStatus  int8   `json:"black_status"`  // 黑名单状态 1 你是对方的黑名单，2 对方在你的黑名单中 0 非黑名单
+	ToUserId    int64  `json:"to_user_id"`             // 对方id
+	Relation    int64  `json:"relation"`               // 好友关系
+	ApplyId     *int64 `json:"apply_id,omitempty"`     // 好友申请状态
+	ApplyStatus *int8  `json:"apply_status,omitempty"` // 好友申请状态
 }
 
 type ReviewFriendApplyReq struct {
+	UserId  int64 `json:"user_id" binding:"required"`  // 用户id
 	ApplyId int64 `json:"apply_id" binding:"required"` // 好友申请 申请id
-	Pass    int8  `json:"pass" binding:"required"`     // 是否通过 1通过 0驳回
+	Pass    int8  `json:"pass" binding:"required"`     // 是否通过 2通过 3驳回
+}
+
+type ReviewFriendResp struct {
+	ToUserId    int64  `json:"to_user_id"`             // 对方id
+	Relation    int64  `json:"relation"`               // 好友关系
+	ApplyId     *int64 `json:"apply_id,omitempty"`     // 好友申请状态
+	ApplyStatus *int8  `json:"apply_status,omitempty"` // 好友申请状态
 }
 
 type Friend struct {

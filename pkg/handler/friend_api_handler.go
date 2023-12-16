@@ -39,6 +39,7 @@ func appFriendApply(appCtx *app.Context) gin.HandlerFunc {
 			appCtx.Logger().Error(errReq.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
 		} else {
+			appCtx.Logger().Debug("appFriendApply", resp)
 			baseDto.ResponseSuccess(ctx, resp)
 		}
 	}
@@ -54,12 +55,13 @@ func reviewFriendApply(appCtx *app.Context) gin.HandlerFunc {
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
-		errReq := friendLogic.ReviewFriendApply(&req)
+		resp, errReq := friendLogic.ReviewFriendApply(&req)
 		if errReq != nil {
 			appCtx.Logger().Error(errReq.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
 		} else {
-			baseDto.ResponseSuccess(ctx, nil)
+			appCtx.Logger().Debug("reviewFriendApply", resp)
+			baseDto.ResponseSuccess(ctx, resp)
 		}
 	}
 }

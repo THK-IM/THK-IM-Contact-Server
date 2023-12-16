@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/thk-im/thk-im-base-server v0.0.0-20231215133046-540f2fc36b56
+	github.com/thk-im/thk-im-base-server v0.0.0-20231216035659-c0001db2992c
 	gorm.io/gorm v1.25.5
 )
 
