@@ -14,12 +14,12 @@ func NewFollowLogic(appCtx *app.Context) *FollowLogic {
 	return &FollowLogic{appCtx: appCtx}
 }
 
-func (f FollowLogic) AddFollowContact(req *dto.FollowReq) error {
+func (f *FollowLogic) AddFollowContact(req *dto.FollowReq) error {
 	err := f.appCtx.UserContactModel().CreateUserRelation(req.UserId, req.ContactId, model.RelationFollow)
 	return err
 }
 
-func (f FollowLogic) RemoveFollowContact(req *dto.UnFollowReq) error {
+func (f *FollowLogic) RemoveFollowContact(req *dto.UnFollowReq) error {
 	err := f.appCtx.UserContactModel().RemoveUserRelation(req.UserId, req.ContactId, model.RelationFollow)
 	return err
 }

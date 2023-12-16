@@ -15,7 +15,7 @@ func NewFriendLogic(appCtx *app.Context) *FriendLogic {
 	return &FriendLogic{appCtx: appCtx}
 }
 
-func (f FriendLogic) AddFriendApply(req *dto.AddFriendReq) (*dto.AddFriendResp, error) {
+func (f *FriendLogic) AddFriendApply(req *dto.AddFriendReq) (*dto.AddFriendResp, error) {
 	addFriendResp := &dto.AddFriendResp{
 		ToUserId: req.ContactId,
 	}
@@ -39,7 +39,7 @@ func (f FriendLogic) AddFriendApply(req *dto.AddFriendReq) (*dto.AddFriendResp, 
 	return addFriendResp, nil
 }
 
-func (f FriendLogic) ReviewFriendApply(req *dto.ReviewFriendApplyReq) (*dto.ReviewFriendResp, error) {
+func (f *FriendLogic) ReviewFriendApply(req *dto.ReviewFriendApplyReq) (*dto.ReviewFriendResp, error) {
 	apply, errDb := f.appCtx.UserContactModel().ReviewContactApply(req.UserId, req.ApplyId, req.Pass)
 	if errDb != nil {
 		return nil, errDb

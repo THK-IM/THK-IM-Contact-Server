@@ -14,7 +14,7 @@ func NewContactLogic(appCtx *app.Context) *ContactLogic {
 	return &ContactLogic{appCtx: appCtx}
 }
 
-func (l ContactLogic) QueryContact(userId, toUserId int64) (*dto.Contact, error) {
+func (l *ContactLogic) QueryContact(userId, toUserId int64) (*dto.Contact, error) {
 	contact, err := l.appCtx.UserContactModel().FindOneByContactId(userId, toUserId)
 	if err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func (l ContactLogic) QueryContact(userId, toUserId int64) (*dto.Contact, error)
 	return dtoContact, nil
 }
 
-func (l ContactLogic) QueryContactList(req *dto.ContactListReq) (*dto.ContactListResp, error) {
+func (l *ContactLogic) QueryContactList(req *dto.ContactListReq) (*dto.ContactListResp, error) {
 	userContacts, total, err := l.appCtx.UserContactModel().FindContacts(req.UserId, req.RelationType, req.Count, req.Offset)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (l ContactLogic) QueryContactList(req *dto.ContactListReq) (*dto.ContactLis
 	return res, nil
 }
 
-func (l ContactLogic) contactModel2Dto(contact *model.UserContact) *dto.Contact {
+func (l *ContactLogic) contactModel2Dto(contact *model.UserContact) *dto.Contact {
 	return &dto.Contact{
 		Id:         contact.ContactId,
 		Relation:   contact.Relation,
