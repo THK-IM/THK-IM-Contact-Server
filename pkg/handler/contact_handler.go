@@ -6,16 +6,18 @@ import (
 	"github.com/thk-im/thk-im-base-server/conf"
 	"github.com/thk-im/thk-im-base-server/middleware"
 	"github.com/thk-im/thk-im-contact-server/pkg/app"
+	userSdk "github.com/thk-im/thk-im-user-server/pkg/sdk"
 )
 
 func RegisterContactApiHandlers(appCtx *app.Context) {
 	httpEngine := appCtx.HttpEngine()
-
-	userAuth := middleware.UserTokenAuth(appCtx.Context)
 	ipAuth := middleware.WhiteIpAuth(appCtx.Context)
+	userApi := appCtx.UserApi()
+	userTokenAuth := userSdk.UserTokenAuth(userApi, appCtx.Logger())
+
 	var authMiddleware gin.HandlerFunc
 	if appCtx.Config().DeployMode == conf.DeployExposed {
-		authMiddleware = userAuth
+		authMiddleware = userTokenAuth
 	} else if appCtx.Config().DeployMode == conf.DeployBackend {
 		authMiddleware = ipAuth
 	} else {
