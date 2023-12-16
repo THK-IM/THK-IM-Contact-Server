@@ -15,11 +15,6 @@ func NewFriendLogic(appCtx *app.Context) *FriendLogic {
 	return &FriendLogic{appCtx: appCtx}
 }
 
-func (f FriendLogic) QueryFriendList(id int64, count, offset int) (*dto.FriendListResp, error) {
-	f.appCtx.Logger().Info(id, count, offset)
-	return nil, nil
-}
-
 func (f FriendLogic) AddFriendApply(req *dto.AddFriendReq) (*dto.AddFriendResp, error) {
 	addFriendResp := &dto.AddFriendResp{
 		ToUserId: req.ContactId,

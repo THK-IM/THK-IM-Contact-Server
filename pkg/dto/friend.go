@@ -24,15 +24,3 @@ type ReviewFriendResp struct {
 	ApplyId     *int64 `json:"apply_id,omitempty"`     // 好友申请状态
 	ApplyStatus *int8  `json:"apply_status,omitempty"` // 好友申请状态
 }
-
-type Friend struct {
-	Id       int64  `json:"id"`
-	Nickname string `json:"nickname"`
-	Avatar   string `json:"avatar"`
-	Sex      int8   `json:"sex"`
-}
-
-type FriendListResp struct {
-	Total int      `json:"total"`
-	Data  []Friend `json:"data"`
-}

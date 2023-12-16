@@ -50,6 +50,7 @@ type (
 	}
 
 	UserContactModel interface {
+		FindContacts(uId int64, contactType, count, offset int) ([]*UserContact, int64, error)
 		FindOneByContactId(uId, contactId int64) (*UserContact, error)
 		CreateUserRelation(uId, contactId, relation int64) (err error)
 		RemoveUserRelation(uId, contactId, relation int64) (err error)
@@ -65,6 +66,19 @@ type (
 		snowflakeNode *snowflake.Node
 	}
 )
+
+func (d defaultUserContactModel) FindContacts(uId int64, contactType, count, offset int) ([]*UserContact, int64, error) {
+	tableName := d.genUserContactTableName(uId)
+	total := int64(0)
+	userContacts := make([]*UserContact, 0)
+	relation := 1 << contactType
+	err := d.db.Table(tableName).Where("user_id = ? and relation & ? > 0", uId, relation).Count(&total).Error
+	if err != nil {
+		return nil, total, err
+	}
+	err = d.db.Table(tableName).Where("user_id = ? and relation & ? > 0", uId, relation).Offset(offset).Limit(count).Scan(&userContacts).Error
+	return userContacts, total, err
+}
 
 func (d defaultUserContactModel) FindOneByContactId(uId, contactId int64) (*UserContact, error) {
 	tableName := d.genUserContactTableName(uId)
@@ -205,34 +219,58 @@ func (d defaultUserContactModel) ReviewContactApply(uId, applyId int64, passed i
 func (d defaultUserContactModel) createUserRelation(tx *gorm.DB, uId, contactId, relation int64) (err error) {
 	userTable := d.genUserContactTableName(uId)
 	contactTable := d.genUserContactTableName(contactId)
-	sql := "insert into %s (user_id, contact_id, relation, create_time, update_time) values (?, ?, ?, ?, ?)  on duplicate key update relation = relation | ?, update_time = ? "
-	now := time.Now().UnixMilli()
-	err = tx.Exec(fmt.Sprintf(sql, userTable), uId, contactId, relation, now, now, relation, now).Error
-	if err != nil {
-		return err
-	}
+
 	reverseRelation := relation << 1
 	if relation == RelationFriend {
 		reverseRelation = relation
 	}
-	err = tx.Exec(fmt.Sprintf(sql, contactTable), contactId, uId, reverseRelation, now, now, reverseRelation, now).Error
+
+	relationSql := ""
+	reverseRelationSql := ""
+	if relation == RelationBlack {
+		relationSql = fmt.Sprintf("%d", RelationBlack)
+		reverseRelationSql = fmt.Sprintf("%d", RelationBeBlack)
+	} else {
+		relationSql = fmt.Sprintf("relation & %d | %d", 0, relation)
+		reverseRelationSql = fmt.Sprintf("relation | %d", reverseRelation)
+	}
+
+	sql := "insert into %s (user_id, contact_id, relation, create_time, update_time) values (?, ?, ?, ?, ?)  on duplicate key update relation = %s, update_time = ? "
+	now := time.Now().UnixMilli()
+	err = tx.Exec(fmt.Sprintf(sql, userTable, relationSql), uId, contactId, relation, now, now, now).Error
+	if err != nil {
+		return err
+	}
+	err = tx.Exec(fmt.Sprintf(sql, contactTable, reverseRelationSql), contactId, uId, reverseRelation, now, now, now).Error
 	return err
 }
 
 func (d defaultUserContactModel) removeUserRelation(tx *gorm.DB, uId, contactId, relation int64) (err error) {
 	userTable := d.genUserContactTableName(uId)
 	contactTable := d.genUserContactTableName(contactId)
-	sql := "update %s set relation = relation & (relation ^ ?), update_time = ? where user_id = ? and contact_id = ? "
-	now := time.Now().UnixMilli()
-	err = tx.Exec(fmt.Sprintf(sql, userTable), relation, now, uId, contactId).Error
-	if err != nil {
-		return err
-	}
+
 	reverseRelation := relation << 1
 	if relation == RelationFriend {
 		reverseRelation = relation
 	}
-	err = tx.Exec(fmt.Sprintf(sql, contactTable), reverseRelation, now, contactId, uId).Error
+
+	relationSql := ""
+	reverseRelationSql := ""
+	if relation == RelationBlack {
+		relationSql = "0"
+		reverseRelationSql = "0"
+	} else {
+		relationSql = fmt.Sprintf("relation & (relation ^ %d)", relation)
+		reverseRelationSql = fmt.Sprintf("relation & (relation ^ %d)", reverseRelation)
+	}
+
+	sql := "update %s set relation = %s, update_time = ? where user_id = ? and contact_id = ? "
+	now := time.Now().UnixMilli()
+	err = tx.Exec(fmt.Sprintf(sql, userTable, relationSql), now, uId, contactId).Error
+	if err != nil {
+		return err
+	}
+	err = tx.Exec(fmt.Sprintf(sql, contactTable, reverseRelationSql), now, contactId, uId).Error
 	return err
 }
 

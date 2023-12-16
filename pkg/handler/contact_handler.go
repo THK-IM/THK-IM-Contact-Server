@@ -6,10 +6,9 @@ func RegisterContactApiHandlers(appCtx *app.Context) {
 	httpEngine := appCtx.HttpEngine()
 
 	contactGroup := httpEngine.Group("/contact")
-	contactGroup.GET("/friend", queryFriendList(appCtx))
+	contactGroup.GET("", queryContactList(appCtx))
 	contactGroup.POST("/friend/apply", appFriendApply(appCtx))
 	contactGroup.POST("/friend/apply/review", reviewFriendApply(appCtx))
-
 	contactGroup.POST("/follow", followUser(appCtx))
 	contactGroup.DELETE("/follow", unFollowUser(appCtx))
 	contactGroup.POST("/black", addBlack(appCtx))
