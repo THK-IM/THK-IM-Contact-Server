@@ -14,15 +14,16 @@ func addBlack(appCtx *app.Context) gin.HandlerFunc {
 		var req dto.AddBlackReq
 		err := ctx.BindJSON(&req)
 		if err != nil {
-			appCtx.Logger().Error(err.Error())
+			appCtx.Logger().Errorf("addBlack %v", err.Error())
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
 		err = blackLogic.AddBlackContact(&req)
 		if err != nil {
-			appCtx.Logger().Error(err.Error())
+			appCtx.Logger().Errorf("addBlack %v %v", req, err.Error())
 			baseDto.ResponseInternalServerError(ctx, err)
 		} else {
+			appCtx.Logger().Infof("addBlack %v", req)
 			baseDto.ResponseSuccess(ctx, nil)
 		}
 	}
@@ -34,15 +35,17 @@ func removeBlack(appCtx *app.Context) gin.HandlerFunc {
 		var req dto.RemBlackReq
 		err := ctx.BindJSON(&req)
 		if err != nil {
-			appCtx.Logger().Error(err.Error())
+			appCtx.Logger().Errorf("removeBlack %v", err.Error())
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
 		err = blackLogic.RemoveBlackContact(&req)
 		if err != nil {
+			appCtx.Logger().Errorf("removeBlack %v %v", req, err.Error())
 			appCtx.Logger().Error(err.Error())
 			baseDto.ResponseInternalServerError(ctx, err)
 		} else {
+			appCtx.Logger().Infof("removeBlack %v", req)
 			baseDto.ResponseSuccess(ctx, nil)
 		}
 	}

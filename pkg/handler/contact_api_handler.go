@@ -11,17 +11,19 @@ import (
 func queryContactList(appCtx *app.Context) gin.HandlerFunc {
 	contactLogic := logic.NewContactLogic(appCtx)
 	return func(ctx *gin.Context) {
-		contactListReq := &dto.ContactListReq{}
-		err := ctx.BindQuery(contactListReq)
+		req := &dto.ContactListReq{}
+		err := ctx.BindQuery(req)
 		if err != nil {
+			appCtx.Logger().Errorf("queryContactList %v", err.Error())
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
-		resp, errReq := contactLogic.QueryContactList(contactListReq)
+		resp, errReq := contactLogic.QueryContactList(req)
 		if errReq != nil {
-			appCtx.Logger().Error(errReq.Error())
+			appCtx.Logger().Errorf("queryContactList %v %v", req, err.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
 		} else {
+			appCtx.Logger().Info("queryContactList %v %v", req, resp)
 			baseDto.ResponseSuccess(ctx, resp)
 		}
 	}
