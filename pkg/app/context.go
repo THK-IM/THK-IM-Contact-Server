@@ -5,6 +5,7 @@ import (
 	"github.com/thk-im/thk-im-base-server/server"
 	"github.com/thk-im/thk-im-contact-server/pkg/loader"
 	"github.com/thk-im/thk-im-contact-server/pkg/model"
+	msgSdk "github.com/thk-im/thk-im-msgapi-server/pkg/sdk"
 	userSdk "github.com/thk-im/thk-im-user-server/pkg/sdk"
 )
 
@@ -18,6 +19,10 @@ func (c *Context) UserContactModel() model.UserContactModel {
 
 func (c *Context) UserApi() userSdk.UserApi {
 	return c.Context.SdkMap["user_api"].(userSdk.UserApi)
+}
+
+func (c *Context) MsgApi() msgSdk.MsgApi {
+	return c.Context.SdkMap["msg_api"].(msgSdk.MsgApi)
 }
 
 func (c *Context) Init(config *conf.Config) {
