@@ -17,7 +17,7 @@ type AddFriendResp struct {
 type ReviewFriendApplyReq struct {
 	UId     int64  `json:"u_id" binding:"required"`     // 用户id
 	ApplyId int64  `json:"apply_id" binding:"required"` // 好友申请 申请id
-	Pass    int8   `json:"pass" binding:"required"`     // 是否通过 1 维持不变 2通过 3驳回
+	Pass    int8   `json:"pass" binding:"required"`     // 是否通过 1 待审核 2通过 3驳回
 	Msg     string `json:"msg"`
 }
 

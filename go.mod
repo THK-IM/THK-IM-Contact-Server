@@ -6,7 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/thk-im/thk-im-base-server v0.0.0-20231222095716-b1a610143ed8
-	github.com/thk-im/thk-im-msgapi-server v0.0.0-20231222141428-53cb56dbc86b
+	github.com/thk-im/thk-im-msgapi-server v0.0.0-20231222153427-9560c0c963aa
 	github.com/thk-im/thk-im-user-server v0.0.0-20231222100425-d041f1731d9e
 	gorm.io/gorm v1.25.5
 )

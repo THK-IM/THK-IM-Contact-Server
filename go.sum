@@ -282,6 +282,7 @@ github.com/thk-im/thk-im-msgapi-server v0.0.0-20231222100752-a2e5a841ee8e h1:fa0
 github.com/thk-im/thk-im-msgapi-server v0.0.0-20231222100752-a2e5a841ee8e/go.mod h1:czZ6ipykXvDy0Qru42DVuWtvt5ZjbtfzBU5UaLX6X6o=
 github.com/thk-im/thk-im-msgapi-server v0.0.0-20231222135652-d52f3ab7304a/go.mod h1:czZ6ipykXvDy0Qru42DVuWtvt5ZjbtfzBU5UaLX6X6o=
 github.com/thk-im/thk-im-msgapi-server v0.0.0-20231222141428-53cb56dbc86b/go.mod h1:czZ6ipykXvDy0Qru42DVuWtvt5ZjbtfzBU5UaLX6X6o=
+github.com/thk-im/thk-im-msgapi-server v0.0.0-20231222153427-9560c0c963aa/go.mod h1:czZ6ipykXvDy0Qru42DVuWtvt5ZjbtfzBU5UaLX6X6o=
 github.com/thk-im/thk-im-user-server v0.0.0-20231222100425-d041f1731d9e h1:N2g1XahSZDk7QGq21kM6PgJAEd79c+nWcC/0ek9ugLk=
 github.com/thk-im/thk-im-user-server v0.0.0-20231222100425-d041f1731d9e/go.mod h1:geC2aMd4CFJWXZ7Tq97StwjnmFoiPm/BLXXbKBAemak=
 github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926/go.mod h1:9ESjWnEqriFuLhtthL60Sar/7RFoluCcXsuvEwTV5KM=
