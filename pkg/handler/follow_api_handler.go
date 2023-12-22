@@ -8,6 +8,7 @@ import (
 	"github.com/thk-im/thk-im-contact-server/pkg/app"
 	"github.com/thk-im/thk-im-contact-server/pkg/dto"
 	"github.com/thk-im/thk-im-contact-server/pkg/logic"
+	userSdk "github.com/thk-im/thk-im-user-server/pkg/sdk"
 )
 
 func followUser(appCtx *app.Context) gin.HandlerFunc {
@@ -21,7 +22,13 @@ func followUser(appCtx *app.Context) gin.HandlerFunc {
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
-		errReq := followLogic.AddFollowContact(&req)
+		requestUid := ctx.GetInt64(userSdk.UidKey)
+		if requestUid > 0 && requestUid != req.UId {
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("followUser %d, %d", requestUid, req.UId)
+			baseDto.ResponseForbidden(ctx)
+			return
+		}
+		errReq := followLogic.AddFollowContact(&req, claims)
 		if errReq != nil {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("followUser %v %v", req, err.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
@@ -41,6 +48,12 @@ func unFollowUser(appCtx *app.Context) gin.HandlerFunc {
 		if err != nil {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("unFollowUser %v", err.Error())
 			baseDto.ResponseBadRequest(ctx)
+			return
+		}
+		requestUid := ctx.GetInt64(userSdk.UidKey)
+		if requestUid > 0 && requestUid != req.UId {
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("unFollowUser %d, %d", requestUid, req.UId)
+			baseDto.ResponseForbidden(ctx)
 			return
 		}
 		err = followLogic.RemoveFollowContact(&req)

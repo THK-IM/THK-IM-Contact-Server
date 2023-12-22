@@ -8,6 +8,7 @@ import (
 	"github.com/thk-im/thk-im-contact-server/pkg/app"
 	"github.com/thk-im/thk-im-contact-server/pkg/dto"
 	"github.com/thk-im/thk-im-contact-server/pkg/logic"
+	userSdk "github.com/thk-im/thk-im-user-server/pkg/sdk"
 )
 
 func appFriendApply(appCtx *app.Context) gin.HandlerFunc {
@@ -21,7 +22,13 @@ func appFriendApply(appCtx *app.Context) gin.HandlerFunc {
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
-		resp, errReq := friendLogic.AddFriendApply(&req)
+		requestUid := ctx.GetInt64(userSdk.UidKey)
+		if requestUid > 0 && requestUid != req.UId {
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("appFriendApply %d, %d", requestUid, req.UId)
+			baseDto.ResponseForbidden(ctx)
+			return
+		}
+		resp, errReq := friendLogic.AddFriendApply(&req, claims)
 		if errReq != nil {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("appFriendApply %v %v", req, err.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
@@ -43,7 +50,13 @@ func reviewFriendApply(appCtx *app.Context) gin.HandlerFunc {
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
-		resp, errReq := friendLogic.ReviewFriendApply(&req)
+		requestUid := ctx.GetInt64(userSdk.UidKey)
+		if requestUid > 0 && requestUid != req.UId {
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("appFriendApply %d, %d", requestUid, req.UId)
+			baseDto.ResponseForbidden(ctx)
+			return
+		}
+		resp, errReq := friendLogic.ReviewFriendApply(&req, claims)
 		if errReq != nil {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("reviewFriendApply %v %v", req, err.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)

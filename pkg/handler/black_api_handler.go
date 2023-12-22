@@ -8,6 +8,7 @@ import (
 	"github.com/thk-im/thk-im-contact-server/pkg/app"
 	"github.com/thk-im/thk-im-contact-server/pkg/dto"
 	"github.com/thk-im/thk-im-contact-server/pkg/logic"
+	userSdk "github.com/thk-im/thk-im-user-server/pkg/sdk"
 )
 
 func addBlack(appCtx *app.Context) gin.HandlerFunc {
@@ -21,7 +22,15 @@ func addBlack(appCtx *app.Context) gin.HandlerFunc {
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
-		err = blackLogic.AddBlackContact(&req)
+
+		requestUid := ctx.GetInt64(userSdk.UidKey)
+		if requestUid > 0 && requestUid != req.UId {
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("addBlack %d, %d", requestUid, req.UId)
+			baseDto.ResponseForbidden(ctx)
+			return
+		}
+
+		err = blackLogic.AddBlackContact(&req, claims)
 		if err != nil {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("addBlack %v %v", req, err.Error())
 			baseDto.ResponseInternalServerError(ctx, err)
@@ -43,7 +52,13 @@ func removeBlack(appCtx *app.Context) gin.HandlerFunc {
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
-		err = blackLogic.RemoveBlackContact(&req)
+		requestUid := ctx.GetInt64(userSdk.UidKey)
+		if requestUid > 0 && requestUid != req.UId {
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("removeBlack %d, %d", requestUid, req.UId)
+			baseDto.ResponseForbidden(ctx)
+			return
+		}
+		err = blackLogic.RemoveBlackContact(&req, claims)
 		if err != nil {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("removeBlack %v %v", req, err.Error())
 			baseDto.ResponseInternalServerError(ctx, err)

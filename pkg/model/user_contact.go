@@ -29,6 +29,12 @@ const (
 	ApplyRejected
 )
 
+const (
+	ApplyChannelAccountId = iota + 1
+	ApplyChannelQRCode
+	ApplyChannelShare
+)
+
 type (
 	UserContact struct {
 		UserId     int64 `gorm:"user_id"`
@@ -39,11 +45,11 @@ type (
 	}
 
 	UserContactApply struct {
-		UserId       int64 `gorm:"user_id"`
 		ApplyId      int64 `gorm:"apply_id"`
 		ApplyUserId  int64 `gorm:"apply_user_id"` // 申请人id
 		ToUserId     int64 `gorm:"to_user_id"`    // 被申请人id
 		RelationType int8  `gorm:"relation_type"`
+		Channel      int8  `gorm:"channel"`
 		ApplyStatus  int8  `gorm:"apply_status"`
 		CreateTime   int64 `gorm:"create_time"`
 		UpdateTime   int64 `gorm:"update_time"`
@@ -55,8 +61,8 @@ type (
 		CreateUserRelation(uId, contactId, relation int64) (err error)
 		RemoveUserRelation(uId, contactId, relation int64) (err error)
 		FindOneByContactApplyId(uId, applyId int64) (apply *UserContactApply, err error)
-		CreateContactApply(uId, contactId int64, relationType int8) (applyId int64, err error)
-		ReviewContactApply(uId, applyId int64, passed int8) (toUserApply *UserContactApply, err error)
+		CreateContactApply(uId, contactId int64, relationType, channel int8) (apply *UserContactApply, err error)
+		ReviewContactApply(uId, applyId int64, passed int8) (userApply *UserContactApply, err error)
 	}
 
 	defaultUserContactModel struct {
@@ -123,51 +129,27 @@ func (d defaultUserContactModel) FindOneByContactApplyId(uId, applyId int64) (ap
 	return
 }
 
-func (d defaultUserContactModel) CreateContactApply(uId, contactId int64, relationType int8) (applyId int64, err error) {
-	userTable := d.genUserContactApplyTableName(uId)
-	toUserTable := d.genUserContactApplyTableName(contactId)
+func (d defaultUserContactModel) CreateContactApply(uId, contactId int64, relationType, channel int8) (apply *UserContactApply, err error) {
+	applyId := d.snowflakeNode.Generate().Int64()
+	applyTable := d.genUserContactApplyTableName(applyId)
 	now := time.Now().UnixMilli()
-	applyId = d.snowflakeNode.Generate().Int64()
-	tx := d.db.Begin()
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			err = tx.Commit().Error
-		}
-	}()
 
 	userContactApply := &UserContactApply{
-		UserId:       uId,
 		ApplyId:      applyId,
 		ApplyUserId:  uId,
 		ToUserId:     contactId,
 		RelationType: relationType,
+		Channel:      channel,
 		ApplyStatus:  ApplyInit,
 		CreateTime:   now,
 		UpdateTime:   now,
 	}
-	err = tx.Table(userTable).Create(userContactApply).Error
-	if err != nil {
-		return
-	}
-
-	toUserContactApply := &UserContactApply{
-		UserId:       contactId,
-		ApplyId:      applyId,
-		ApplyUserId:  uId,
-		ToUserId:     contactId,
-		RelationType: relationType,
-		ApplyStatus:  ApplyInit,
-		CreateTime:   now,
-		UpdateTime:   now,
-	}
-	err = tx.Table(toUserTable).Create(toUserContactApply).Error
-	return
+	err = d.db.Table(applyTable).Create(userContactApply).Error
+	return userContactApply, err
 }
 
-func (d defaultUserContactModel) ReviewContactApply(uId, applyId int64, passed int8) (toUserApply *UserContactApply, err error) {
-	userTable := d.genUserContactApplyTableName(uId)
+func (d defaultUserContactModel) ReviewContactApply(uId, applyId int64, passed int8) (userApply *UserContactApply, err error) {
+	userTable := d.genUserContactApplyTableName(applyId)
 	now := time.Now().UnixMilli()
 
 	tx := d.db.Begin()
@@ -179,18 +161,23 @@ func (d defaultUserContactModel) ReviewContactApply(uId, applyId int64, passed i
 		}
 	}()
 
-	toUserApply = &UserContactApply{}
-	err = tx.Table(userTable).Where("user_id = ? and apply_id = ?", uId, applyId).Find(toUserApply).Error
+	userApply = &UserContactApply{}
+	err = tx.Table(userTable).Where("apply_id = ?", applyId).Find(userApply).Error
 	if err != nil {
 		return
 	}
 
-	if toUserApply.UserId != toUserApply.ToUserId {
+	if userApply.ToUserId != uId {
 		err = errorx.ErrPermission
 		return
 	}
 
-	if toUserApply.ApplyStatus != ApplyInit {
+	if userApply.ApplyStatus != ApplyInit {
+		err = errorx.ErrPermission
+		return
+	}
+
+	if passed == ApplyInit {
 		return
 	}
 
@@ -198,20 +185,17 @@ func (d defaultUserContactModel) ReviewContactApply(uId, applyId int64, passed i
 	updateMap["apply_status"] = passed
 	updateMap["update_time"] = now
 
-	err = tx.Table(userTable).Where("user_id = ? and apply_id = ?", uId, applyId).Updates(updateMap).Error
-	if err != nil {
-		return
-	}
+	userApply.ApplyStatus = passed
+	userApply.UpdateTime = now
 
-	applyUserTable := d.genUserContactApplyTableName(toUserApply.ApplyUserId)
-	err = tx.Table(applyUserTable).Where("user_id = ? and apply_id = ?", toUserApply.ApplyUserId, applyId).Updates(updateMap).Error
+	err = tx.Table(userTable).Where("apply_id = ?", applyId).Updates(updateMap).Error
 	if err != nil {
 		return
 	}
 
 	if passed == ApplyPassed {
-		relation := int64(1 << toUserApply.RelationType)
-		err = d.createUserRelation(tx, toUserApply.ApplyUserId, toUserApply.ToUserId, relation)
+		relation := int64(1 << userApply.RelationType)
+		err = d.createUserRelation(tx, userApply.ApplyUserId, userApply.ToUserId, relation)
 	}
 	return
 }

@@ -1,7 +1,7 @@
 package dto
 
 type ContactListReq struct {
-	UserId       int64 `form:"user_id"`
+	UId          int64 `form:"u_id"`
 	RelationType int   `form:"relation_type"`
 	Count        int   `form:"count"`
 	Offset       int   `form:"offset"`

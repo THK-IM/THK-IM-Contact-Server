@@ -8,6 +8,7 @@ import (
 	"github.com/thk-im/thk-im-contact-server/pkg/app"
 	"github.com/thk-im/thk-im-contact-server/pkg/dto"
 	"github.com/thk-im/thk-im-contact-server/pkg/logic"
+	userSdk "github.com/thk-im/thk-im-user-server/pkg/sdk"
 )
 
 func queryContactList(appCtx *app.Context) gin.HandlerFunc {
@@ -21,12 +22,19 @@ func queryContactList(appCtx *app.Context) gin.HandlerFunc {
 			baseDto.ResponseBadRequest(ctx)
 			return
 		}
+		requestUid := ctx.GetInt64(userSdk.UidKey)
+		if requestUid > 0 && requestUid != req.UId {
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("queryContactList %d, %d", requestUid, req.UId)
+			baseDto.ResponseForbidden(ctx)
+			return
+		}
+
 		resp, errReq := contactLogic.QueryContactList(req)
 		if errReq != nil {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("queryContactList %v %v", req, err.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
 		} else {
-			appCtx.Logger().WithFields(logrus.Fields(claims)).Info("queryContactList %v %v", req, resp)
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Infof("queryContactList %v %v", req, resp)
 			baseDto.ResponseSuccess(ctx, resp)
 		}
 	}

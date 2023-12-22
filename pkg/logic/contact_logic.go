@@ -29,13 +29,13 @@ func (l *ContactLogic) QueryContact(userId, toUserId int64) (*dto.Contact, error
 }
 
 func (l *ContactLogic) QueryContactList(req *dto.ContactListReq) (*dto.ContactListResp, error) {
-	userContacts, total, err := l.appCtx.UserContactModel().FindContacts(req.UserId, req.RelationType, req.Count, req.Offset)
+	userContacts, total, err := l.appCtx.UserContactModel().FindContacts(req.UId, req.RelationType, req.Count, req.Offset)
 	if err != nil {
 		return nil, err
 	}
 	res := &dto.ContactListResp{
 		Total: total,
-		Data:  nil,
+		Data:  make([]*dto.Contact, 0),
 	}
 	if len(userContacts) > 0 {
 		res.Data = make([]*dto.Contact, 0)

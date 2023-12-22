@@ -1,8 +1,10 @@
 package dto
 
 type AddFriendReq struct {
-	UserId    int64 `json:"user_id" binding:"required"`
-	ContactId int64 `json:"contact_id" binding:"required"` // 对方id
+	UId       int64  `json:"u_id" binding:"required"`       // 用户id
+	ContactId int64  `json:"contact_id" binding:"required"` // 对方id
+	Channel   int8   `json:"channel"`                       // 渠道
+	Msg       string `json:"msg"`                           // 申请留言
 }
 
 type AddFriendResp struct {
@@ -13,9 +15,10 @@ type AddFriendResp struct {
 }
 
 type ReviewFriendApplyReq struct {
-	UserId  int64 `json:"user_id" binding:"required"`  // 用户id
-	ApplyId int64 `json:"apply_id" binding:"required"` // 好友申请 申请id
-	Pass    int8  `json:"pass" binding:"required"`     // 是否通过 2通过 3驳回
+	UId     int64  `json:"u_id" binding:"required"`     // 用户id
+	ApplyId int64  `json:"apply_id" binding:"required"` // 好友申请 申请id
+	Pass    int8   `json:"pass" binding:"required"`     // 是否通过 1 维持不变 2通过 3驳回
+	Msg     string `json:"msg"`
 }
 
 type ReviewFriendResp struct {
