@@ -10,12 +10,14 @@ import (
 )
 
 const (
-	RelationTypeBlack = iota + 1
+	RelationTypeStranger = iota
+	RelationTypeBlack
 	RelationTypeBeBlack
 	RelationTypeFollow
 	RelationTypeBeFollow
 	RelationTypeFriend
 
+	RelationStranger = 1 << 0
 	RelationBlack    = 1 << RelationTypeBlack
 	RelationBeBlack  = 1 << RelationTypeBeBlack
 	RelationFollow   = 1 << RelationTypeFollow

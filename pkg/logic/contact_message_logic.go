@@ -2,10 +2,12 @@ package logic
 
 import (
 	baseDto "github.com/thk-im/thk-im-base-server/dto"
+	baseErrorx "github.com/thk-im/thk-im-base-server/errorx"
 	"github.com/thk-im/thk-im-contact-server/pkg/app"
 	"github.com/thk-im/thk-im-contact-server/pkg/dto"
 	"github.com/thk-im/thk-im-contact-server/pkg/model"
 	msgDto "github.com/thk-im/thk-im-msgapi-server/pkg/dto"
+	msgModel "github.com/thk-im/thk-im-msgapi-server/pkg/model"
 	"time"
 )
 
@@ -71,4 +73,32 @@ func SendFriendReviewMsg(appCtx *app.Context, apply *model.UserContactApply, msg
 	}
 	_, errSend := appCtx.MsgApi().SendSysMessage(sendMsgReq, claims)
 	return errSend
+}
+
+func StartChat(appCtx *app.Context, uId int64, entityId int64, textMsg string, claims baseDto.ThkClaims) error {
+	createSessionReq := &msgDto.CreateSessionReq{
+		UId:      uId,
+		Type:     msgModel.SingleSessionType,
+		EntityId: entityId,
+	}
+	resp, errCreate := appCtx.MsgApi().CreateSession(createSessionReq, claims)
+	if errCreate != nil {
+		return errCreate
+	}
+	if resp == nil || resp.SId == 0 {
+		return baseErrorx.ErrInternalServerError
+	}
+
+	clientId := appCtx.SnowflakeNode().Generate().Int64()
+	sendMessageReq := &msgDto.SendMessageReq{
+		CId:   clientId,
+		SId:   resp.SId,
+		Type:  1,
+		CTime: time.Now().UnixMilli(),
+		Body:  textMsg,
+		FUid:  0,
+	}
+
+	_, err := appCtx.MsgApi().SendSessionMessage(sendMessageReq, claims)
+	return err
 }

@@ -59,6 +59,13 @@ func (l *FriendLogic) ReviewFriendApply(req *dto.ReviewFriendApplyReq, claims ba
 		l.appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("SendFriendReviewMsg err %v", errSend)
 	}
 
+	if apply.ApplyStatus == model.ApplyPassed {
+		errChat := StartChat(l.appCtx, apply.ToUserId, apply.ApplyUserId, "你们已经是好友，可以开始聊天了", claims)
+		if errChat != nil {
+			l.appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("StartChat err %v", errChat)
+		}
+	}
+
 	resp := &dto.ReviewFriendResp{
 		ToUserId:    apply.ApplyUserId,
 		ApplyId:     &apply.ApplyId,

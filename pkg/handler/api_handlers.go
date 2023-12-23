@@ -34,5 +34,6 @@ func RegisterContactApiHandlers(appCtx *app.Context) {
 		contactGroup.DELETE("/follow", unFollowUser(appCtx))
 		contactGroup.POST("/black", addBlack(appCtx))
 		contactGroup.DELETE("/black", removeBlack(appCtx))
+		contactGroup.POST("/session", createSession(appCtx))
 	}
 }
