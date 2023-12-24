@@ -34,7 +34,7 @@ func createSession(appCtx *app.Context) gin.HandlerFunc {
 			baseDto.ResponseInternalServerError(ctx, errReq)
 		} else {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Infof("createSession %v %v", req, resp)
-			baseDto.ResponseSuccess(ctx, nil)
+			baseDto.ResponseSuccess(ctx, resp)
 		}
 	}
 }
