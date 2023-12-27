@@ -7,6 +7,13 @@ type ContactListReq struct {
 	Offset       int   `form:"offset"`
 }
 
+type LatestContactListReq struct {
+	UId    int64 `form:"u_id"`
+	Count  int   `form:"count"`
+	Offset int   `form:"offset"`
+	MTime  int64 `json:"m_time"`
+}
+
 type Contact struct {
 	Id         int64  `json:"id"`
 	Relation   int64  `json:"relation"`
@@ -17,7 +24,11 @@ type Contact struct {
 	UpdateTime int64  `json:"update_time"`
 }
 
-type ContactListResp struct {
+type ContactPageListResp struct {
 	Total int64      `json:"total"`
 	Data  []*Contact `json:"data"`
+}
+
+type ContactListResp struct {
+	Data []*Contact `json:"data"`
 }

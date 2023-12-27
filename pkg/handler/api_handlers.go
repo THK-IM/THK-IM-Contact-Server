@@ -28,6 +28,7 @@ func RegisterContactApiHandlers(appCtx *app.Context) {
 	contactGroup.Use(authMiddleware)
 	{
 		contactGroup.GET("", queryContactList(appCtx))
+		contactGroup.GET("/latest", queryLatestContactList(appCtx))
 		contactGroup.POST("/friend/apply", appFriendApply(appCtx))
 		contactGroup.POST("/friend/apply/review", reviewFriendApply(appCtx))
 		contactGroup.POST("/follow", followUser(appCtx))

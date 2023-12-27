@@ -58,6 +58,7 @@ type (
 	}
 
 	UserContactModel interface {
+		FindLatestContacts(uId, mTime int64, count, offset int) ([]*UserContact, error)
 		FindContacts(uId int64, contactType, count, offset int) ([]*UserContact, int64, error)
 		FindOneByContactId(uId, contactId int64) (*UserContact, error)
 		CreateUserRelation(uId, contactId, relation int64) (err error)
@@ -74,6 +75,13 @@ type (
 		snowflakeNode *snowflake.Node
 	}
 )
+
+func (d defaultUserContactModel) FindLatestContacts(uId, mTime int64, count, offset int) ([]*UserContact, error) {
+	tableName := d.genUserContactTableName(uId)
+	userContacts := make([]*UserContact, 0)
+	err := d.db.Table(tableName).Where("user_id = ? and update_time > ? order by update_time asc ", uId, mTime).Offset(offset).Limit(count).Scan(&userContacts).Error
+	return userContacts, err
+}
 
 func (d defaultUserContactModel) FindContacts(uId int64, contactType, count, offset int) ([]*UserContact, int64, error) {
 	tableName := d.genUserContactTableName(uId)
