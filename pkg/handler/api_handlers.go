@@ -33,6 +33,7 @@ func RegisterContactApiHandlers(appCtx *app.Context) {
 		contactGroup.POST("/friend/apply/review", reviewFriendApply(appCtx))
 		contactGroup.POST("/follow", followUser(appCtx))
 		contactGroup.DELETE("/follow", unFollowUser(appCtx))
+		contactGroup.POST("/note_name", setNoteName(appCtx))
 		contactGroup.POST("/black", addBlack(appCtx))
 		contactGroup.DELETE("/black", removeBlack(appCtx))
 		contactGroup.POST("/session", createSession(appCtx))

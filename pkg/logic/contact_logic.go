@@ -1,6 +1,7 @@
 package logic
 
 import (
+	baseDto "github.com/thk-im/thk-im-base-server/dto"
 	"github.com/thk-im/thk-im-contact-server/pkg/app"
 	"github.com/thk-im/thk-im-contact-server/pkg/dto"
 	"github.com/thk-im/thk-im-contact-server/pkg/model"
@@ -64,11 +65,15 @@ func (l *ContactLogic) QueryLatestContactList(req *dto.LatestContactListReq) (*d
 	}
 	return res, nil
 }
+func (l *ContactLogic) UpdateContactName(req *dto.UpdateContactNotName, claims baseDto.ThkClaims) error {
+	return l.appCtx.UserContactModel().SetNoteName(req.UId, req.ContactId, req.NoteName)
+}
 
 func (l *ContactLogic) contactModel2Dto(contact *model.UserContact) *dto.Contact {
 	return &dto.Contact{
 		Id:         contact.ContactId,
 		Relation:   contact.Relation,
+		NoteName:   contact.NoteName,
 		CreateTime: contact.CreateTime,
 		UpdateTime: contact.UpdateTime,
 	}

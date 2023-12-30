@@ -38,3 +38,31 @@ func createSession(appCtx *app.Context) gin.HandlerFunc {
 		}
 	}
 }
+
+func setNoteName(appCtx *app.Context) gin.HandlerFunc {
+	contactLogic := logic.NewContactLogic(appCtx)
+	return func(ctx *gin.Context) {
+		claims := ctx.MustGet(baseMiddleware.ClaimsKey).(baseDto.ThkClaims)
+		var req dto.UpdateContactNotName
+		err := ctx.BindJSON(&req)
+		if err != nil {
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("setNoteName %v", err.Error())
+			baseDto.ResponseBadRequest(ctx)
+			return
+		}
+		requestUid := ctx.GetInt64(userSdk.UidKey)
+		if requestUid > 0 && requestUid != req.UId {
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("setNoteName %d, %d", requestUid, req.UId)
+			baseDto.ResponseForbidden(ctx)
+			return
+		}
+		errReq := contactLogic.UpdateContactName(&req, claims)
+		if errReq != nil {
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("setNoteName %v %v", req, err.Error())
+			baseDto.ResponseInternalServerError(ctx, errReq)
+		} else {
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Infof("setNoteName %v", req)
+			baseDto.ResponseSuccess(ctx, nil)
+		}
+	}
+}

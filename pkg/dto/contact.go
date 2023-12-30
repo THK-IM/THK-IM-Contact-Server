@@ -15,13 +15,20 @@ type LatestContactListReq struct {
 }
 
 type Contact struct {
-	Id         int64  `json:"id"`
-	Relation   int64  `json:"relation"`
-	Nickname   string `json:"nickname"`
-	Avatar     string `json:"avatar"`
-	Sex        int8   `json:"sex"`
-	CreateTime int64  `json:"create_time"`
-	UpdateTime int64  `json:"update_time"`
+	Id         int64   `json:"id"`
+	Relation   int64   `json:"relation"`
+	Nickname   string  `json:"nickname"`
+	NoteName   *string `json:"note_name,omitempty"`
+	Avatar     string  `json:"avatar"`
+	Sex        int8    `json:"sex"`
+	CreateTime int64   `json:"create_time"`
+	UpdateTime int64   `json:"update_time"`
+}
+
+type UpdateContactNotName struct {
+	UId       int64  `json:"u_id"`
+	ContactId int64  `json:"contact_id"`
+	NoteName  string `json:"note_name"`
 }
 
 type ContactPageListResp struct {

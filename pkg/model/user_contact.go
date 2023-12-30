@@ -39,11 +39,12 @@ const (
 
 type (
 	UserContact struct {
-		UserId     int64 `gorm:"user_id"`
-		ContactId  int64 `gorm:"contact_id"`
-		Relation   int64 `gorm:"relation"`
-		CreateTime int64 `gorm:"create_time"`
-		UpdateTime int64 `gorm:"update_time"`
+		UserId     int64   `gorm:"user_id"`
+		ContactId  int64   `gorm:"contact_id"`
+		Relation   int64   `gorm:"relation"`
+		NoteName   *string `gorm:"note_name"`
+		CreateTime int64   `gorm:"create_time"`
+		UpdateTime int64   `gorm:"update_time"`
 	}
 
 	UserContactApply struct {
@@ -58,6 +59,7 @@ type (
 	}
 
 	UserContactModel interface {
+		SetNoteName(uId, contactId int64, noteName string) error
 		FindLatestContacts(uId, mTime int64, count, offset int) ([]*UserContact, error)
 		FindContacts(uId int64, contactType, count, offset int) ([]*UserContact, int64, error)
 		FindOneByContactId(uId, contactId int64) (*UserContact, error)
@@ -75,6 +77,12 @@ type (
 		snowflakeNode *snowflake.Node
 	}
 )
+
+func (d defaultUserContactModel) SetNoteName(uId, contactId int64, noteName string) error {
+	tableName := d.genUserContactTableName(uId)
+	sql := fmt.Sprintf("update %s set note_name = ?, update_time = ? where u_id = ? and contact_id = ?", tableName)
+	return d.db.Exec(sql, noteName, time.Now().UnixMilli(), uId, contactId).Error
+}
 
 func (d defaultUserContactModel) FindLatestContacts(uId, mTime int64, count, offset int) ([]*UserContact, error) {
 	tableName := d.genUserContactTableName(uId)
