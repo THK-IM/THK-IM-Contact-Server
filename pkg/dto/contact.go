@@ -11,7 +11,7 @@ type LatestContactListReq struct {
 	UId    int64 `form:"u_id"`
 	Count  int   `form:"count"`
 	Offset int   `form:"offset"`
-	MTime  int64 `json:"m_time"`
+	MTime  int64 `form:"m_time"`
 }
 
 type Contact struct {
