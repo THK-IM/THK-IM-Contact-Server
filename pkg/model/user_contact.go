@@ -41,8 +41,9 @@ type (
 	UserContact struct {
 		UserId     int64   `gorm:"user_id"`
 		ContactId  int64   `gorm:"contact_id"`
-		Relation   int64   `gorm:"relation"`
+		SessionId  *int64  `gorm:"session_id"`
 		NoteName   *string `gorm:"note_name"`
+		Relation   int64   `gorm:"relation"`
 		CreateTime int64   `gorm:"create_time"`
 		UpdateTime int64   `gorm:"update_time"`
 	}
@@ -59,6 +60,7 @@ type (
 	}
 
 	UserContactModel interface {
+		SetSessionId(uId, contactId, sessionId int64) error
 		SetNoteName(uId, contactId int64, noteName string) error
 		FindLatestContacts(uId, mTime int64, count, offset int) ([]*UserContact, error)
 		FindContacts(uId int64, contactType, count, offset int) ([]*UserContact, int64, error)
@@ -78,10 +80,38 @@ type (
 	}
 )
 
+func (d defaultUserContactModel) SetSessionId(uId, contactId, sessionId int64) (err error) {
+	tx := d.db.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit().Error
+		}
+	}()
+
+	tableName := d.genUserContactTableName(uId)
+	now := time.Now().UnixMilli()
+	sql := fmt.Sprintf("insert into %s (user_id, contact_id, session_id, note_name, relation, create_time, update_time) "+
+		"values (?, ?, ?, ?, ?, ?, ?)  on duplicate key update session_id = ?, update_time = ? ", tableName)
+	err = d.db.Exec(sql, uId, contactId, sessionId, nil, 0, now, now, sessionId, now).Error
+	if err != nil {
+		return
+	}
+
+	tableName = d.genUserContactTableName(contactId)
+	sql = fmt.Sprintf("insert into %s (user_id, contact_id, session_id, note_name, relation, create_time, update_time) "+
+		"values (?, ?, ?, ?, ?, ?, ?)  on duplicate key update session_id = ?, update_time = ? ", tableName)
+	err = d.db.Exec(sql, contactId, uId, sessionId, nil, 0, now, now, sessionId, now).Error
+	return
+}
+
 func (d defaultUserContactModel) SetNoteName(uId, contactId int64, noteName string) error {
 	tableName := d.genUserContactTableName(uId)
-	sql := fmt.Sprintf("update %s set note_name = ?, update_time = ? where u_id = ? and contact_id = ?", tableName)
-	return d.db.Exec(sql, noteName, time.Now().UnixMilli(), uId, contactId).Error
+	now := time.Now().UnixMilli()
+	sql := fmt.Sprintf("insert into %s (user_id, contact_id, session_id, note_name, relation, create_time, update_time) "+
+		"values (?, ?, ?, ?, ?, ?, ?)  on duplicate key update note_name = ?, update_time = ? ", tableName)
+	return d.db.Exec(sql, uId, contactId, nil, noteName, 0, now, now, noteName, now).Error
 }
 
 func (d defaultUserContactModel) FindLatestContacts(uId, mTime int64, count, offset int) ([]*UserContact, error) {
@@ -237,13 +267,13 @@ func (d defaultUserContactModel) createUserRelation(tx *gorm.DB, uId, contactId,
 		reverseRelationSql = fmt.Sprintf("relation | %d", reverseRelation)
 	}
 
-	sql := "insert into %s (user_id, contact_id, relation, create_time, update_time) values (?, ?, ?, ?, ?)  on duplicate key update relation = %s, update_time = ? "
+	sql := "insert into %s (user_id, contact_id, session_id, note_name, relation, create_time, update_time) values (?, ?, ?, ?, ?, ?, ?)  on duplicate key update relation = %s, update_time = ? "
 	now := time.Now().UnixMilli()
-	err = tx.Exec(fmt.Sprintf(sql, userTable, relationSql), uId, contactId, relation, now, now, now).Error
+	err = tx.Exec(fmt.Sprintf(sql, userTable, relationSql), uId, contactId, nil, nil, relation, now, now, now).Error
 	if err != nil {
 		return err
 	}
-	err = tx.Exec(fmt.Sprintf(sql, contactTable, reverseRelationSql), contactId, uId, reverseRelation, now, now, now).Error
+	err = tx.Exec(fmt.Sprintf(sql, contactTable, reverseRelationSql), contactId, uId, nil, nil, reverseRelation, now, now, now).Error
 	return err
 }
 

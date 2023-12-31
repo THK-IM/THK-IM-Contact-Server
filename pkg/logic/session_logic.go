@@ -30,6 +30,12 @@ func (l SessionLogic) CreateSession(req *dto.CreateSessionReq, claims baseDto.Th
 	if resp == nil || resp.SId == 0 {
 		return nil, baseErrorx.ErrInternalServerError
 	}
+
+	err := l.appCtx.UserContactModel().SetSessionId(req.UId, req.ContactId, resp.SId)
+	if err != nil {
+		return nil, err
+	}
+
 	return &dto.CreateSessionResp{
 		SId:      resp.SId,
 		ParentId: resp.ParentId,

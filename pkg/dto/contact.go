@@ -19,6 +19,7 @@ type Contact struct {
 	Relation   int64   `json:"relation"`
 	Nickname   string  `json:"nickname"`
 	NoteName   *string `json:"note_name,omitempty"`
+	SessionId  *int64  `json:"session_id"`
 	Avatar     string  `json:"avatar"`
 	Sex        int8    `json:"sex"`
 	CreateTime int64   `json:"create_time"`
