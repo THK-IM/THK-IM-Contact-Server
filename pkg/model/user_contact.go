@@ -39,6 +39,7 @@ const (
 
 type (
 	UserContact struct {
+		Id         int64   `gorm:"id"`
 		UserId     int64   `gorm:"user_id"`
 		ContactId  int64   `gorm:"contact_id"`
 		SessionId  *int64  `gorm:"session_id"`
@@ -49,7 +50,7 @@ type (
 	}
 
 	UserContactApply struct {
-		ApplyId      int64 `gorm:"apply_id"`
+		Id           int64 `gorm:"id"`
 		ApplyUserId  int64 `gorm:"apply_user_id"` // 申请人id
 		ToUserId     int64 `gorm:"to_user_id"`    // 被申请人id
 		RelationType int8  `gorm:"relation_type"`
@@ -183,7 +184,7 @@ func (d defaultUserContactModel) CreateContactApply(uId, contactId int64, relati
 	now := time.Now().UnixMilli()
 
 	userContactApply := &UserContactApply{
-		ApplyId:      applyId,
+		Id:           applyId,
 		ApplyUserId:  uId,
 		ToUserId:     contactId,
 		RelationType: relationType,

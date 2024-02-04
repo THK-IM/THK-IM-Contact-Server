@@ -40,7 +40,7 @@ func (l *FriendLogic) AddFriendApply(req *dto.AddFriendReq, claims baseDto.ThkCl
 	return &dto.AddFriendResp{
 		ToUserId:    req.ContactId,
 		Relation:    userContact.Relation,
-		ApplyId:     &apply.ApplyId,
+		ApplyId:     &apply.Id,
 		ApplyStatus: &apply.ApplyStatus,
 	}, nil
 }
@@ -50,7 +50,7 @@ func (l *FriendLogic) ReviewFriendApply(req *dto.ReviewFriendApplyReq, claims ba
 	if errDb != nil {
 		return nil, errDb
 	}
-	if apply.ApplyId != req.ApplyId {
+	if apply.Id != req.ApplyId {
 		return nil, errorx.ErrParamsError
 	}
 
@@ -68,7 +68,7 @@ func (l *FriendLogic) ReviewFriendApply(req *dto.ReviewFriendApplyReq, claims ba
 
 	resp := &dto.ReviewFriendResp{
 		ToUserId:    apply.ApplyUserId,
-		ApplyId:     &apply.ApplyId,
+		ApplyId:     &apply.Id,
 		ApplyStatus: &apply.ApplyStatus,
 	}
 	userContact, errQuery := l.appCtx.UserContactModel().FindOneByContactId(req.UId, apply.ApplyUserId)

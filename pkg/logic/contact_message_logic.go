@@ -44,7 +44,7 @@ func SendBeFollowMessage(appCtx *app.Context, uId, followId int64, claims baseDt
 }
 
 func SendFriendApplyMsg(appCtx *app.Context, apply *model.UserContactApply, msg string, claims baseDto.ThkClaims) error {
-	body, errBody := dto.NewFriendApplyMsgBody(apply.ApplyId, apply.ApplyUserId, apply.ToUserId, msg).ToJson()
+	body, errBody := dto.NewFriendApplyMsgBody(apply.Id, apply.ApplyUserId, apply.ToUserId, msg).ToJson()
 	if errBody != nil {
 		return errBody
 	}
@@ -60,7 +60,7 @@ func SendFriendApplyMsg(appCtx *app.Context, apply *model.UserContactApply, msg 
 }
 
 func SendFriendReviewMsg(appCtx *app.Context, apply *model.UserContactApply, msg string, claims baseDto.ThkClaims) error {
-	body, errBody := dto.NewFriendReviewMsgBody(apply.ApplyId, apply.ApplyUserId, apply.ToUserId, msg, apply.ApplyStatus).ToJson()
+	body, errBody := dto.NewFriendReviewMsgBody(apply.Id, apply.ApplyUserId, apply.ToUserId, msg, apply.ApplyStatus).ToJson()
 	if errBody != nil {
 		return errBody
 	}
