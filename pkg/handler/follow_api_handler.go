@@ -30,7 +30,7 @@ func followUser(appCtx *app.Context) gin.HandlerFunc {
 		}
 		errReq := followLogic.AddFollowContact(&req, claims)
 		if errReq != nil {
-			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("followUser %v %v", req, err.Error())
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("followUser %v %v", req, errReq.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
 		} else {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Infof("followUser %v", req)

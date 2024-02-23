@@ -31,7 +31,7 @@ func queryContactList(appCtx *app.Context) gin.HandlerFunc {
 
 		resp, errReq := contactLogic.QueryContactList(req)
 		if errReq != nil {
-			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("queryContactList %v %v", req, err.Error())
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("queryContactList %v %v", req, errReq.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
 		} else {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Infof("queryContactList %v %v", req, resp)
@@ -60,7 +60,7 @@ func queryLatestContactList(appCtx *app.Context) gin.HandlerFunc {
 
 		resp, errReq := contactLogic.QueryLatestContactList(req)
 		if errReq != nil {
-			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("queryLatestContactList %v %v", req, err.Error())
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("queryLatestContactList %v %v", req, errReq.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
 		} else {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Infof("queryLatestContactList %v %v", req, resp)

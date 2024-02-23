@@ -30,7 +30,7 @@ func appFriendApply(appCtx *app.Context) gin.HandlerFunc {
 		}
 		resp, errReq := friendLogic.AddFriendApply(&req, claims)
 		if errReq != nil {
-			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("appFriendApply %v %v", req, err.Error())
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("appFriendApply %v %v", req, errReq.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
 		} else {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Infof("appFriendApply %v %v", req, resp)
@@ -58,7 +58,7 @@ func reviewFriendApply(appCtx *app.Context) gin.HandlerFunc {
 		}
 		resp, errReq := friendLogic.ReviewFriendApply(&req, claims)
 		if errReq != nil {
-			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("reviewFriendApply %v %v", req, err.Error())
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("reviewFriendApply %v %v", req, errReq.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
 		} else {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Infof("reviewFriendApply %v %v", req, resp)

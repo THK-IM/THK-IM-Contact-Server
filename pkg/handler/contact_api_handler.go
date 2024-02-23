@@ -30,7 +30,7 @@ func createSession(appCtx *app.Context) gin.HandlerFunc {
 		}
 		resp, errReq := sessionLogic.CreateSession(&req, claims)
 		if errReq != nil {
-			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("createSession %v %v", req, err.Error())
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("createSession %v %v", req, errReq.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
 		} else {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Infof("createSession %v %v", req, resp)
@@ -58,7 +58,7 @@ func setNoteName(appCtx *app.Context) gin.HandlerFunc {
 		}
 		errReq := contactLogic.UpdateContactName(&req, claims)
 		if errReq != nil {
-			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("setNoteName %v %v", req, err.Error())
+			appCtx.Logger().WithFields(logrus.Fields(claims)).Errorf("setNoteName %v %v", req, errReq.Error())
 			baseDto.ResponseInternalServerError(ctx, errReq)
 		} else {
 			appCtx.Logger().WithFields(logrus.Fields(claims)).Infof("setNoteName %v", req)
