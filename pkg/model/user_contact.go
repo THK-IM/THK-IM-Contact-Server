@@ -264,7 +264,7 @@ func (d defaultUserContactModel) createUserRelation(tx *gorm.DB, uId, contactId,
 		relationSql = fmt.Sprintf("%d", RelationBlack)
 		reverseRelationSql = fmt.Sprintf("%d", RelationBeBlack)
 	} else {
-		relationSql = fmt.Sprintf("relation & %d | %d", 0, relation)
+		relationSql = fmt.Sprintf("relation & (relation ^ %d) | %d", RelationBlack, relation)
 		reverseRelationSql = fmt.Sprintf("relation | %d", reverseRelation)
 	}
 

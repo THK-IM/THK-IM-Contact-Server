@@ -17,8 +17,8 @@ func (c *Context) UserContactModel() model.UserContactModel {
 	return c.Context.ModelMap["user_contact"].(model.UserContactModel)
 }
 
-func (c *Context) UserApi() userSdk.UserApi {
-	return c.Context.SdkMap["user_api"].(userSdk.UserApi)
+func (c *Context) LoginApi() userSdk.LoginApi {
+	return c.Context.SdkMap["login_api"].(userSdk.LoginApi)
 }
 
 func (c *Context) MsgApi() msgSdk.MsgApi {
