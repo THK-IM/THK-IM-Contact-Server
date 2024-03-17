@@ -19,9 +19,10 @@ func NewSessionLogic(appCtx *app.Context) *SessionLogic {
 
 func (l SessionLogic) CreateSession(req *dto.CreateSessionReq, claims baseDto.ThkClaims) (*dto.CreateSessionResp, error) {
 	createSessionReq := &msgDto.CreateSessionReq{
-		UId:      req.UId,
-		Type:     msgModel.SingleSessionType,
-		EntityId: req.ContactId,
+		UId:          req.UId,
+		Type:         msgModel.SingleSessionType,
+		EntityId:     req.ContactId,
+		FunctionFlag: msgDto.FuncTextFlag | msgDto.FuncAudioFlag | msgDto.ImageFlag | msgDto.VideoFlag | msgDto.ForwardFlag | msgDto.ForwardFlag,
 	}
 	resp, errCreate := l.appCtx.MsgApi().CreateSession(createSessionReq, claims)
 	if errCreate != nil {
