@@ -22,7 +22,7 @@ func (l SessionLogic) CreateSession(req *dto.CreateSessionReq, claims baseDto.Th
 		UId:          req.UId,
 		Type:         msgModel.SingleSessionType,
 		EntityId:     req.ContactId,
-		FunctionFlag: msgDto.FuncTextFlag | msgDto.FuncAudioFlag | msgDto.ImageFlag | msgDto.VideoFlag | msgDto.ForwardFlag | msgDto.ForwardFlag,
+		FunctionFlag: msgDto.FuncAll,
 	}
 	resp, errCreate := l.appCtx.MsgApi().CreateSession(createSessionReq, claims)
 	if errCreate != nil {
